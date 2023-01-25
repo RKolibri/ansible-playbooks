@@ -1,0 +1,85 @@
+---
+- name: Update packages, add user and ssh key
+  hosts: test
+  become: yes
+  tasks:
+
+  - name: Set username for the user you want to create
+    set_fact:
+      user: "ENTER USERNAME HERE"
+
+  
+  - name: Update packages
+    apt:
+      update_cache: yes
+      upgrade: dist
+
+  - name: Install curl
+    apt:
+      name: curl
+
+  - name: Install git
+    apt:
+      name: git
+
+  - name: Create user
+    user:
+      name: "{{ user }}"
+      password: "{{ 'AddY0uRP@s$0rDHerE' | password_hash('sha512') }}"
+      shell: /bin/bash
+      update_password: on_create
+
+  - name: Add user to sudoers
+    lineinfile:
+      path: /etc/sudoers
+      line: '"{{ user }}" ALL=(ALL) NOPASSWD:ALL'
+
+      
+  - name: Add ssh key to authorized keys
+    authorized_key:
+      user: "{{ user }}"
+      key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+
+  - name: Install Starship
+    shell: curl -sS https://starship.rs/install.sh | sh -s -- -y
+    become: yes
+    become_user: "{{ user }}"
+
+  - name: Add sharship to .bashrc
+    lineinfile:
+      path: /home/{{ user }}/.bashrc
+      line: 'eval "$(starship init bash)"'
+
+  - name: Clone dotfiles repo
+    git:
+      repo: https://github.com/RKolibri/dotfiles
+      dest: /home/{{ user }}/dotfiles
+      version: main
+    become: yes
+    become_user: "{{ user }}"
+
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /home/{{ user }}/.config
+      state: directory
+      mode: '0755'
+      recurse: yes
+      owner: "{{ user }}"
+      group: "{{ user }}"
+
+  - name: Copy files from source to destination
+    copy:
+      src: /home/{{ user }}/dotfiles/.config/starship.toml
+      dest: /home/{{ user }}/.config/starship.toml
+      remote_src: yes
+      owner: "{{ user }}"
+      group: "{{ user }}"
+
+  - name: Disable password authentication
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+      state: present
+
+
