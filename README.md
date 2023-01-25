@@ -1,6 +1,9 @@
 # ansible-playbooks
 
-#
+
+## Terminal Preview
+<img src="preview.png" alt="preview image">
+
 
 ## How to run
 
