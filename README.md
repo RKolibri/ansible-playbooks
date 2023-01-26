@@ -45,7 +45,6 @@ ansible --version
 
 ## How to run
 
- 
 - NOTE playbook is configured for Debian based remotes specifically Ubuntu 20.04 LXC
 
 Clone Repo 
