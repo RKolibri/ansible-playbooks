@@ -6,19 +6,21 @@
 
   - name: Set username for the user you want to create
     set_fact:
-      user: "ENTER USERNAME HERE"
+    # Important edit value before running the playbook 
+      user: "ENTER_USERNAME_HERE"
 
   
   - name: Update and Upgrade packages also install git and curl
     apt:
       update_cache: yes
-      upgrade: dist
+      #upgrade: dist
       name: git 
       name: curl 
   - name: Create user
     user:
       name: "{{ user }}"
-      password: "{{ 'AddY0uRP@s$0rDHerE' | password_hash('sha512') }}"
+          # Important edit value before running the playbook
+      password: "{{ 'ENTER_PASSWORD_HERE' | password_hash('sha512') }}"
       shell: /bin/bash
       update_password: on_create
 
