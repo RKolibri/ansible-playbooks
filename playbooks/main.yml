@@ -10,10 +10,9 @@
       user: "ENTER_USERNAME_HERE"
 
   
-  - name: Update and Upgrade packages also install git and curl
+  - name: Update packages and install git and curl
     apt:
       update_cache: yes
-      #upgrade: dist
       name: git 
       name: curl 
   - name: Create user
