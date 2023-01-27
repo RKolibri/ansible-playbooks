@@ -1,0 +1,71 @@
+---
+- name: Update packages, add user and ssh key
+  hosts: test
+  become: yes
+  tasks:
+
+  - name: Set username for the user you want to create
+    set_fact:
+    # Important edit value before running the playbook 
+      user: "ENTER_USERNAME_HERE"
+
+  
+  - name: Update packages and install git and curl
+    apt:
+      update_cache: yes
+      name: git 
+      name: curl 
+      name: openjdk-11-jdk-headless 
+      name: unzip
+  - name: Create user
+    user:
+      name: "{{ user }}"
+          # Important edit value before running the playbook
+      password: "{{ 'ENTER_PASSWORD_HERE' | password_hash('sha512') }}"
+      shell: /bin/bash
+      update_password: on_create
+
+  - name: Add user to sudoers
+    lineinfile:
+      path: /etc/sudoers
+      line: '"{{ user }}" ALL=(ALL) NOPASSWD:ALL'
+
+      
+  - name: Add ssh key to authorized keys
+    authorized_key:
+      user: "{{ user }}"
+      key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+
+  - name: Clone dotfiles repo
+    git:
+      repo: https://github.com/RKolibri/dotfiles
+      dest: /home/{{ user }}/dotfiles
+      version: main
+    become: yes
+    become_user: "{{ user }}"
+
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /opt/l2jkolibri
+      state: directory
+      mode: '0755'
+      recurse: yes
+      owner: "{{ user }}"
+      group: "{{ user }}"
+
+  - name: Copy files from source to destination
+    copy:
+      src: /home/{{ user }}/l2jkolibri/gameserver/build/dist
+      dest: /home/{{ user }}/.config/starship.toml
+      remote_src: yes
+      owner: "{{ user }}"
+      group: "{{ user }}"
+
+  - name: Disable password authentication
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+      state: present
+
+

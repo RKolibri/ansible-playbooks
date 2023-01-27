@@ -4,9 +4,10 @@
   become: yes
   tasks:
 
-  - name: install apache2
+  - name: install apache2 and php modules
     apt:
      update_cache: true
      name: apache2
+     name: libapache2-mod-php
      state: present
      #state: absent
