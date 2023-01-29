@@ -1,0 +1,31 @@
+---
+- name: Add a new user for ubuntu LXC on Proxmox 
+  hosts: ubunturootproxmox
+  become: yes
+  tasks:
+  - name: Create user
+    user:
+      name: "ENTER_USERNAME_HERE"
+          # Important edit value before running the playbook
+      password: "{{ 'ENTER_PASS_HERE' | password_hash('sha512') }}"
+      shell: /bin/bash
+      update_password: on_create
+
+  - name: Add user to sudoers
+    lineinfile:
+      path: /etc/sudoers
+      line: '"kolibri" ALL=(ALL) NOPASSWD:ALL'
+
+  - name: Add ssh key to authorized keys
+    tags: fresh-install,user,fresh,ssh_key
+    authorized_key:
+      user: "kolibri"
+      key: "{{ lookup('file', './ssh_key.pub') }}"
+
+  - name: Disable password authentication
+    tags: fresh-install,user,fresh
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+      state: present      
