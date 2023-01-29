@@ -12,29 +12,11 @@
 ### Installation on Ubuntu or Debian
 1. Update the package list: 
     ```bash
-    sudo apt-get update
+    sudo apt update
     ```
 2. Install the software-properties-common package, which is used to manage PPAs: 
     ```bash
-    sudo apt-get install software-properties-common
-    ```
-3. Add the Ansible PPA: 
-    ```bash
-    sudo apt-add-repository --yes --update ppa:ansible/ansible
-    ```
-4. Install Ansible: 
-    ```bash
-    sudo apt-get install ansible
-    ```
-
-### Installation on CentOS or Fedora
-1. Install EPEL repository: 
-    ```bash
-    sudo yum install epel-release
-    ```
-2. Install Ansible: 
-    ```bash
-    sudo yum install ansible
+    sudo apt install ansible
     ```
 
 ### Verifying the installation
